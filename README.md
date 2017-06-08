@@ -5,7 +5,13 @@ Ansible Role: Kibana - Basic License
 # Background
 * Heavily inspired by [geerlingguy/ansible-role-kibana](https://github.com/geerlingguy/ansible-role-kibana)
 * It is recommended to use this in conjunction with the official [ansible-elastic](https://github.com/elastic/ansible-elasticsearch)
-role
+role. If you're using only the basic license then you should enable x_pack on the instances
+and also enable monitoring on the instances
+```
+es_enable_xpack: true
+es_xpack_features: 'monitoring'
+```
+
 * X-Pack is great but defaults to running all features: security, monitoring, altering
 * However, with the basic license, only monitoring is free
 * The settings need to be specific to get Kibana to work with a basic license
@@ -31,3 +37,32 @@ node that is also running kibana
 * `kibana_home` defaults to `/usr/share/kibana`
 * `es_major_version` defaults to `5.x`
 
+# References/Debugging
+* [X-pack and basic license thread](https://discuss.elastic.co/t/x-pack-and-basic-license/65014/7)
+* This runs Kibana as a service and so Kibana debugging isn't outputted. To help
+debug it is useful to view the service logs by running on the server instance
+```
+sudo journalctl -f -u kibana
+```
+* View your license by running:
+```
+curl {ip and host}/_xpack/license
+```
+This should respond with something like this:
+```
+{
+  "license" : {
+    "status" : "active",
+    "uid" : "some-has",
+    "type" : "basic",
+    "issue_date" : "some-date",
+    "issue_date_in_millis" : some-date
+    "expiry_date" : "some-date",
+    "expiry_date_in_millis" : some-date
+    "max_nodes" : 100,
+    "issued_to" : "your-name",
+    "issuer" : "some-format",
+    "start_date_in_millis" : some-date
+  }
+}
+```
